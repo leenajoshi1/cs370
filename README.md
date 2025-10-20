@@ -1,6 +1,6 @@
 # Predicting Translation from RNA Profiles
 
-Undergraduate Research with Dr. Can Cenik, UT Austin
+Undergraduate Research with supervisor Dr. Can Cenik, UT Austin
 
 
 This project builds machine learning models to understand how RNA expression patterns predict translation efficiency (TE) — how actively genes are converted into proteins — in human HEK293T cells.
