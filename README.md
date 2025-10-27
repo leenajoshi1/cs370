@@ -57,7 +57,27 @@ Top predictors and their direction of effect
 
 Cross-validated error metrics
 
+### 5. MultiTask Lasso — Vector-Based Translation Model
 
+This stage replaces the earlier cluster-mean approach with a vector-output model that jointly predicts translation efficiency across all ribosomal genes (RPS, RPL) simultaneously.
+
+Input (X): RNA expression from non-ribosomal genes
+
+Output (Y): Translation efficiency values for ribosomal genes
+
+The model learns a shared sparse set of predictors - non-ribosomal genes whose expression patterns explain variation in ribosomal translation.
+
+Joint L1 penalty encourages feature sharing across all outputs. Integration with CIGS Dataset: Each compound’s RNA profile from the CIGS HEK293T dataset is used as input. The trained model predicts the translational response vector (changes in RPS/RPL TE). Compounds are ranked by magnitude and direction of predicted translational impact.
+
+### 6. Drug Perturbation Integration (CIGS Dataset)
+
+Uses the Chemical-Induced Gene Signature (CIGS) dataset (https://cigs.iomicscloud.com/) to connect drug-induced RNA changes to predicted translational responses.
+
+Each compound’s RNA signature (HEK293T) is input into the model, and the model predicts translation efficiency shifts across RPS/RPL genes
+
+Compounds are ranked by magnitude and direction of predicted translational impact
+
+Outcome: Provides a computational approach to link small molecules with translation-level changes 
 
 ## Technical Stack
 
@@ -65,4 +85,4 @@ Python / Colab
 
 pandas, numpy, scikit-learn, matplotlib, networkx
 
-Models: LinearRegression, RidgeCV, LassoCV, GraphicalLassoCV
+Models: LinearRegression, RidgeCV, LassoCV, MultiTaskLassoCV, GraphicalLassoCV
