@@ -3,7 +3,7 @@
 Undergraduate Research with supervisor Dr. Can Cenik, UT Austin
 
 
-This project builds machine learning models to understand how RNA expression patterns predict translation efficiency (TE) — how actively genes are converted into proteins — in human HEK293T cells.
+This project builds machine learning models to understand how RNA expression patterns predict translation efficiency (TE, how actively genes are converted into proteins).
 The ultimate goal is to map how drugs or perturbations shift translation activity across the genome.
 
 ## Project Pipeline
