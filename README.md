@@ -80,20 +80,20 @@ Each numbered section corresponds to a contiguous block of cells in the notebook
 * **Step 13 – Diagnostics** – Scatter + histogram views of the combined scores make it easy to discuss whether a compound is directionally biased or a broad-spectrum ribosome modulator (Cell 27).
 * **Step 14 – Difficulty readout** – Hard/easy ribosomal targets are summarized with bar charts instead of the earlier, inaccurate heatmap (Cell 28).
 
-### Current Highlights (Nov 2025 run)
+### Current Highlights 
 These numbers come from the most recent end-to-end execution. Treat them as targets when you rerun or extend the notebook.
 * MultiTask Lasso train RMSE: ~0.19 log2 units with alpha 0.01 and ~83% sparsity.
 * Per-target RMSE median: ~0.17; mean: ~0.21 across 87 ribosomal outputs.
-* Top predicted translational amplifiers in latest CIGS pass: homoharringtonine, cycloheximide, and emetine (expected positive controls). Several HDAC inhibitors show strong negative mean effect, suggesting a translational repression axis that deserves wet-lab validation.
+* Top predicted translational amplifiers in latest CIGS pass: homoharringtonine, cycloheximide, and emetine (expected positive controls). Several HDAC inhibitors show strong negative mean effect, suggesting a translational repression axis that could use wet-lab validation.
 * Compound score diagnostics currently show ~30% of compounds dominated by directional shifts (|z_mean| > z_l2); the rest act as broad-spectrum ribosome modulators.
-* Ribosomal difficulty profiling shows a median RMSE gap of ~0.11 between the hardest and easiest dozen targets, which now serves as the progress-tracking metric instead of the retired coefficient heatmap.
+* Ribosomal difficulty profiling shows a median RMSE gap of ~0.11 between the hardest and easiest dozen targets, which now serves as the progress-tracking metric instead of the coefficient heatmap.
 * Ridge baseline median R² ≈ 0.42 vs. the multitask sparsity/readouts, reinforcing why we invest in the multitask approach.
 
 
 ## Future Research Directions (Drug-Focused)
 These examples emphasize translating model predictions into actionable drug insights—both computational follow-ups and suggested experiments.
-1. **Compound clustering by TE signature** – Use the predicted `pred_TE` matrix to cluster drugs by shared translational fingerprints, then relate each cluster to known mechanisms (HDAC inhibition, ribosome poison, etc.).
-2. **Repurposing exploration** – Cross-reference top translational modulators with FDA-approved indications; flag candidates whose predicted TE effects suggest new uses (e.g., HDAC inhibitors as translation dampers in hyperactive ribosome diseases).
+1. **Compound clustering by TE signature** – Use the predicted `pred_TE` matrix to cluster drugs by shared translational fingerprints, then relate each cluster to known mechanisms.
+2. **Repurposing exploration** – Cross-reference top translational modulators with FDA-approved indications; flag candidates whose predicted TE effects suggest new uses.
 
 ## Technical Stack
 * Python + Jupyter/VS Code
