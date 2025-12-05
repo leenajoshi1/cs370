@@ -13,7 +13,7 @@ Using HEK293T cell line data, we developed a MultiTask Lasso regression model th
 - Screens 11,358 bioactive compounds from the CIGS dataset to identify translational modulators
 - Provides quantitative accuracy metrics and biological interpretation for compound prioritization
 
-**Key Innovation:** Rather than treating each ribosomal gene independently, our MultiTask Lasso approach learns shared regulatory patterns across all ribosomal proteins simultaneously, improving prediction accuracy while maintaining biological interpretability through sparsity. 
+Rather than treating each ribosomal gene independently, our MultiTask Lasso approach learns shared regulatory patterns across all ribosomal proteins simultaneously, improving prediction accuracy while maintaining biological interpretability through sparsity. 
 
 
 ---
@@ -152,7 +152,7 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 - Cross-validation performance (R², MAE, RMSE)
 - Feature sparsity patterns
 
-**Key Insight:** Confirms that non-ribosomal RNA can predict ribosomal TE
+**Insight:** Confirms that non-ribosomal RNA can predict ribosomal TE
 
 ### **Step 7: MultiTask Lasso for Ribosomal TE**
 **Purpose:** Joint model for all 87 ribosomal genes simultaneously  
@@ -551,7 +551,7 @@ Based on combined z-score ranking:
   - Ribosomal genes: 87 (RPS + RPL)
 
 ### Compound Screening (CIGS)
-- **MCE_Bioactive_Compounds_HEK293T_10μM_Counts.xlsx:** (529 MB)
+- **MCE_Bioactive_Compounds_HEK293T_10μM_Counts.xlsx:** 
   - Source: CIGS compound perturbation screen
   - Cell line: HEK293T
   - Treatment: 24h, 10μM
@@ -563,7 +563,6 @@ Based on combined z-score ranking:
 
 
 ---
-
 
 
 ### Step 1 – Environment setup (Cells 1–2)
