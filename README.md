@@ -64,21 +64,6 @@ pip install numpy pandas matplotlib seaborn scikit-learn scipy
 
 ---
 
-## Project Structure
-
-```
-cs370/
-├── RNA_to_TE_prediction.ipynb    # Main analysis notebook (17 steps)
-├── README.md                       # This file
-├── data/                          # Data directory (not in repo due to size)
-│   ├── RNA_HEK293T.csv
-│   ├── TE_HEK293T.csv
-│   ├── MCE_Bioactive_Compounds_HEK293T_10μM_Counts.xlsx
-│   └── MCE_Bioactive_Compounds_HEK293T_10μM_MetaData.xlsx
-└── Week7.ipynb                    # Earlier exploratory work
-```
-
----
 
 ## Methodology
 
@@ -92,7 +77,6 @@ Goal: Learn f: X → Y such that we can predict ribosomal TE from cellular RNA p
 ### Modeling Approach
 
 #### 1. Data Preprocessing
-- **CLR Normalization:** Centered log-ratio transformation to handle compositional data and remove sequencing depth effects
 - **Feature Engineering:** Gene symbol mapping, ribosomal gene classification (RPS vs RPL)
 - **Quality Control:** Sample alignment, missing value imputation via column means
 
@@ -120,8 +104,6 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 
 ## Notebook Walkthrough
 
-The notebook is organized into 17 numbered steps with clear section headers and a clickable table of contents.
-
 ### **Step 1: Environment Setup**
 **Purpose:** Import libraries, set random seeds, define configuration constants  
 **Output:** Reproducible environment ready for analysis
@@ -131,7 +113,7 @@ The notebook is organized into 17 numbered steps with clear section headers and 
 **Key Files:**
 - `RNA_HEK293T.csv` - Transcriptome-wide RNA counts
 - `TE_HEK293T.csv` - Ribosome profiling-derived TE measurements
-- CIGS compound data (counts + metadata)
+- CIGS compound data (counts + metadata), available here https://cigs.iomicscloud.com/
 
 **Output:** Console confirmation of all file paths or early failure if files missing
 
@@ -544,7 +526,7 @@ Based on combined z-score ranking:
 - **SciPy:** Statistical tests, clustering, PCA
 
 ### Custom Components
-- **XLSX Streaming Parser:** `zipfile` + `ElementTree.iterparse` for large files (529 MB)
+- **XLSX Streaming Parser:** `zipfile` + `ElementTree.iterparse` for large files (529 MB). Can also be redone via simple pandas
 - **CLR Transformation:** Centered log-ratio for compositional data
 - **Metadata Alignment:** Plate:well coordinate matching for CIGS data
 
@@ -579,42 +561,10 @@ Based on combined z-score ranking:
   - Compound identifiers, plate coordinates
   - Treatment conditions, quality flags
 
-### Data Availability
-**Note:** Large data files (>100 MB) are not included in the GitHub repository due to size limits. Contact authors for data access or download from original sources.
 
 ---
 
-## Citation
 
-If you use this work, please cite:
-
-```
-Joshi, L. (2025). RNA to Translation Efficiency Prediction: A MultiTask Learning Approach 
-for Compound Screening. Undergraduate Research Project, University of Texas at Austin. 
-Supervisor: Dr. Can Cenik. https://github.com/leenajoshi1/cs370
-```
-
----
-
-## Contact & Acknowledgments
-
-**Author:** Leena Joshi  
-**Institution:** University of Texas at Austin  
-**Supervisor:** Dr. Can Cenik  
-**Course:** CS 370 - Undergraduate Research
-
-**Acknowledgments:**
-- Dr. Can Cenik for project supervision and domain expertise
-- Cenik Lab for providing HEK293T RNA/TE datasets
-- CIGS consortium for compound perturbation data
-
----
-
-## License
-
-This project is for educational and research purposes. Data usage subject to original source licenses.
-
-Each numbered section corresponds to a contiguous block of cells in the notebook. The text explains why the block exists, how it ties back to the research question, and what outputs you should see when things run correctly.
 
 ### Step 1 – Environment setup (Cells 1–2)
 * Imports NumPy/Pandas/Matplotlib + sklearn, fixes the random seed, and defines reproducibility knobs (`RANDOM_SEED`, `N_SPLITS`, `USE_PCA`).
@@ -707,3 +657,17 @@ These examples emphasize translating model predictions into actionable drug insi
 * Python + Jupyter/VS Code
 * pandas, numpy, matplotlib, seaborn
 * scikit-learn models: `LinearRegression`, `RidgeCV`, `LassoCV`, `MultiTaskLasso`, plus custom CLR + XLSX utilities
+
+## Contact
+
+**Author:** Leena Joshi, leenajoshi@utexas.edu
+**Institution:** University of Texas at Austin  
+**Supervisor:** Dr. Can Cenik
+**Course:** CS 370 - Undergraduate Research
+
+**Acknowledgments:**
+- Dr. Can Cenik for project supervision 
+- Cenik Lab for providing HEK293T RNA/TE datasets
+- CIGS consortium for compound perturbation data
+
+---
