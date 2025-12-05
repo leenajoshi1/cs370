@@ -5,7 +5,7 @@
 
 ## Overview
 
-This project addresses a fundamental question in systems biology: **Can we predict ribosomal protein translation efficiency directly from transcriptome-wide RNA abundance patterns, and use that predictive model to identify small-molecule compounds that modulate translation?**
+This project addresses the question: **Can we predict ribosomal protein translation efficiency directly from transcriptome-wide RNA abundance patterns, and use that predictive model to identify small-molecule compounds that modulate translation?**
 
 Using HEK293T cell line data, we developed a MultiTask Lasso regression model that:
 - Predicts translation efficiency (TE) of 87 ribosomal proteins from 8,346 non-ribosomal RNA features
