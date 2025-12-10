@@ -5,35 +5,17 @@
 
 ## Overview
 
-This project addresses the question: **Can we predict ribosomal protein translation efficiency directly from transcriptome-wide RNA abundance patterns, and use that predictive model to identify small-molecule compounds that modulate translation?**
+This project addresses the question: **Can we predict ribosomal protein translation efficiency directly from RNA abundance patterns, and use that predictive model to identify small-molecule compounds that modulate translation?**
 
-Using HEK293T cell line data, we developed a MultiTask Lasso regression model that:
-- Predicts translation efficiency (TE) of 87 ribosomal proteins from 8,346 non-ribosomal RNA features
+Using HEK293T cell line data from the Cenik lab, this MultiTask Lasso regression model can:
+- Predicts translation efficiency (TE) of ribosomal proteins from non-ribosomal RNA features
 - Achieves R² ≈ 0.65-0.75 with sparse, interpretable feature selection
-- Screens 11,358 bioactive compounds from the CIGS dataset to identify translational modulators
+- Screens bioactive compounds from the Chemical Induced Gene Signature dataset to identify translational modulators
 - Provides quantitative accuracy metrics and biological interpretation for compound prioritization
 
 Rather than treating each ribosomal gene independently, our MultiTask Lasso approach learns shared regulatory patterns across all ribosomal proteins simultaneously, improving prediction accuracy while maintaining biological interpretability through sparsity. 
 
-
 ---
-
-## Table of Contents
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [Methodology](#methodology)
-- [Notebook Walkthrough (17 Steps)](#notebook-walkthrough)
-- [Key Results](#key-results)
-- [Model Performance](#model-performance)
-- [Biological Insights](#biological-insights)
-- [Future Directions](#future-directions)
-- [Technical Stack](#technical-stack)
-- [Data Sources](#data-sources)
-- [Citation](#citation)
-
----
-
-## Quick Start
 
 ### Prerequisites
 ```bash
@@ -51,8 +33,8 @@ pip install numpy pandas matplotlib seaborn scikit-learn scipy
 2. **Ensure data files are in the `data/` directory:**
    - `RNA_HEK293T.csv` - RNA abundance matrix
    - `TE_HEK293T.csv` - Translation efficiency matrix
-   - `MCE_Bioactive_Compounds_HEK293T_10μM_Counts.xlsx` - Compound perturbation data (529 MB)
-   - `MCE_Bioactive_Compounds_HEK293T_10μM_MetaData.xlsx` - Compound metadata
+   - `MCE_Bioactive_Compounds_HEK293T_10μM_Counts.xlsx` - Compound perturbation data (529 MB) - available from https://cigs.iomicscloud.com/
+   - `MCE_Bioactive_Compounds_HEK293T_10μM_MetaData.xlsx` - Compound metadata - available from https://cigs.iomicscloud.com/
 
 3. **Open and run the notebook:**
    ```bash
@@ -60,7 +42,7 @@ pip install numpy pandas matplotlib seaborn scikit-learn scipy
    # or open in VS Code with Jupyter extension
    ```
 
-4. **Execute all cells sequentially** - The notebook includes a table of contents with navigation links for easy access to all 17 analysis steps.
+4. **Execute all cells sequentially** 
 
 ---
 
@@ -91,10 +73,10 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 #### 3. Baseline Comparisons
 - **Per-gene Linear Regression:** Simple RNA[gene] → TE[gene] models
 - **Independent Ridge Regression:** Separate RidgeCV models per ribosomal gene
-- **Result:** MultiTask Lasso outperforms baselines while using fewer total features
+- **Result:** MultiTask Lasso outperforms baseline models while using fewer total features
 
 #### 4. Compound Screening Pipeline
-- Parse 529MB XLSX file with streaming XML to avoid memory overflow
+- Parse 529MB XLSX file with streaming XML (avoids memory overflow -- future versions can simplify this parsing)
 - Filter to HEK293T, 24h treatment, valid doses (40,778 → 11,358 samples)
 - Align compound RNA signatures to training features
 - Predict TE changes for all compounds
@@ -104,47 +86,47 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 
 ## Notebook Walkthrough
 
-### **Step 1: Environment Setup**
+### **Environment Setup**
 **Purpose:** Import libraries, set random seeds, define configuration constants  
 **Output:** Reproducible environment ready for analysis
 
-### **Step 2: Data Paths & Validation**
+### **Data Paths & Validation**
 **Purpose:** Define file paths and verify all required data files exist  
 **Key Files:**
 - `RNA_HEK293T.csv` - Transcriptome-wide RNA counts
 - `TE_HEK293T.csv` - Ribosome profiling-derived TE measurements
-- CIGS compound data (counts + metadata), available here https://cigs.iomicscloud.com/
+- CIGS compound data (counts + metadata)
 
 **Output:** Console confirmation of all file paths or early failure if files missing
 
-### **Step 3: Helper Functions**
-**Purpose:** Reusable utilities for data cleaning and transformation  
+### **Helper Functions**
+**Purpose:** Data cleaning and transformation  
 **Functions:**
 - `drop_index_like()` - Remove unnamed index columns
 - `pick_id_col()` - Infer gene/sample ID columns
 - `clr()` - Centered log-ratio transformation
 - `safe_pearsonr()` - Correlation with NaN handling
 
-### **Step 4: Data Loading**
+### **Data Loading**
 **Purpose:** Load and align RNA and TE matrices  
 **Operations:**
 - Read CSV files
 - Find shared samples and genes
-- Harmonize row/column alignment
+- Row/column alignment
 - Report final dimensions
 
-**Output:** Aligned RNA and TE DataFrames ready for modeling
+**Output:** Aligned RNA and TE dataframes ready for modeling
 
-### **Step 5: Ribosomal Gene Clustering**
-**Purpose:** Identify RPS (40S) and RPL (60S) ribosomal protein genes  
+### **Ribosomal Gene Clustering**
+**Purpose:** Identify RPS and RPL ribosomal protein genes  
 **Analysis:**
-- Gene symbol pattern matching (RPS*, RPL*)
+- Gene symbol pattern matching (RPS, RPL)
 - Cluster visualization via heatmap
 - Correlation analysis within/between clusters
 
-**Output:** Binary masks for ribosomal vs. non-ribosomal genes
+**Output:** Masks for ribosomal vs. non-ribosomal genes
 
-### **Step 6: Lasso Models per Cluster**
+### **Lasso Models per Cluster**
 **Purpose:** Train separate models for RPS and RPL as initial validation  
 **Method:** LassoCV with 5-fold cross-validation  
 **Outputs:**
@@ -154,7 +136,7 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 
 **Insight:** Confirms that non-ribosomal RNA can predict ribosomal TE
 
-### **Step 7: MultiTask Lasso for Ribosomal TE**
+### **MultiTask Lasso for Ribosomal TE**
 **Purpose:** Joint model for all 87 ribosomal genes simultaneously  
 **Architecture:**
 - **Predictors (X):** 8,346 non-ribosomal genes (excludes RPS/RPL to avoid leakage)
@@ -169,7 +151,7 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 
 **Biological Interpretation:** Identifies trans-acting RNA regulators of ribosomal translation
 
-### **Step 8: CIGS Compound Perturbation Data**
+### **CIGS Compound Perturbation Data**
 **Purpose:** Load and process compound screening dataset  
 **Technical Challenge:** 529MB XLSX file requires streaming XML parser  
 **Pipeline:**
@@ -187,12 +169,12 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 - Ranked compound list by translational impact
 - Compound-level summary statistics
 
-### **Step 9: Top Compound Visualization**
+### **Top Compound Visualization**
 **Purpose:** Heatmap of predicted TE for highest-impact compounds  
 **Visualization:** Seaborn heatmap showing top 15 compounds × all ribosomal genes  
 **Interpretation:** Identifies compounds with consistent upregulation, downregulation, or gene-specific effects
 
-### **Step 10: Compound Ranking**
+### **Compound Ranking**
 **Purpose:** Combine directional and magnitude metrics into unified score  
 **Metrics:**
 - `mean_effect`: Average TE change across all ribosomal genes
@@ -202,12 +184,12 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 
 **Output:** Prioritized compound list balancing directional bias vs. broad-spectrum effects
 
-### **Step 11: Baseline - Per-Gene Linear Regression**
+### **Baseline - Per-Gene Linear Regression**
 **Purpose:** Simple baseline using gene's own RNA to predict its TE  
 **Method:** For each gene g: LinearRegression(RNA[g] → TE[g])  
 **Results:** Median R² ~0.30-0.40 (weaker than MultiTask approach)
 
-### **Step 12: Baseline - Ridge Regression**
+### **Baseline - Ridge Regression**
 **Purpose:** Stronger baseline using all RNA features per target  
 **Method:** Independent `RidgeCV` for each of 87 ribosomal genes  
 **Results:**
@@ -217,7 +199,7 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 
 **Conclusion:** MultiTask Lasso's joint modeling provides measurable improvement
 
-### **Step 13: Compound Score Diagnostics**
+### **Compound Score Diagnostics**
 **Purpose:** Visualize compound score distribution and types  
 **Plots:**
 1. Scatter: z_mean vs. z_l2 (colored by combined score)
@@ -227,7 +209,7 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 - ~30% compounds: directional specialists (|z_mean| > z_l2)
 - ~70% compounds: broad-spectrum modulators (z_l2 ≥ |z_mean|)
 
-### **Step 14: Ribosomal Target Difficulty Profile**
+### **Ribosomal Target Difficulty Profile**
 **Purpose:** Identify which ribosomal genes are hardest to predict  
 **Metric:** Per-gene RMSE from MultiTask Lasso  
 **Outputs:**
@@ -235,9 +217,9 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 - Summary tables with RMSE and predictor counts
 - Median RMSE gap: ~0.11 units
 
-**Actionable Insight:** Hard-to-predict genes may need additional features (e.g., miRNA binding, UTR features)
+**Insight:** Hard-to-predict genes may need additional features
 
-### **Step 15: Model Performance & Accuracy Metrics**
+### **Model Performance & Accuracy Metrics**
 **Purpose:** Comprehensive quantitative evaluation  
 **Metrics Calculated:**
 
@@ -264,7 +246,7 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
 3. Per-gene R² distribution
 4. Per-gene correlation distribution
 
-### **Step 16: Biological & Practical Implications**
+### **Biological & Practical Implications**
 **Purpose:** Interpret metrics for biological meaning and screening confidence  
 
 **Key Interpretations:**
@@ -299,7 +281,7 @@ MultiTaskLasso(alpha=0.01, max_iter=3000)
    - Linear model assumptions
    - RNA-only features (missing ribosome occupancy, codon usage)
 
-### **Step 17: Perturbation Data Deep Dive**
+### **Perturbation Data Analysis**
 **Purpose:** Comprehensive analysis of compound perturbation patterns  
 
 **Analyses Performed:**
@@ -382,17 +364,6 @@ Based on combined z-score ranking:
 - mTOR pathway modulators
 - Several novel candidates for validation
 
-**Broad-spectrum Modulators:**
-- Compounds affecting >70% of ribosomal genes
-- Likely impact general translation machinery
-
-### Compound Screening Coverage
-- **Total compounds analyzed:** 11,358
-- **Cell line:** HEK293T
-- **Treatment:** 24 hours, 10μM dose
-- **Gene overlap with training:** 1,856 / 8,346 features (22%)
-- **Predicted outcomes:** 11,358 × 87 TE predictions
-
 ---
 
 ## Model Performance
@@ -411,23 +382,6 @@ Based on combined z-score ranking:
  **Feature constraints** - RNA-only; ignores ribosome occupancy, codon usage, miRNA  
  **Partial feature overlap** - Only 22% of training features in CIGS data
 
-### Recommendations for Users
-1. **High-confidence use cases:**
-   - Rank-ordering compounds by translational impact
-   - Identifying broad vs. specific modulators
-   - Hypothesis generation for MOA studies
-
-2. **Requires caution:**
-   - Direct lead selection (validate top hits)
-   - Quantitative predictions (use for relative ranking)
-   - Generalizing to other cell types (retrain required)
-
-3. **Not recommended:**
-   - Sole criterion for clinical candidates
-   - Predictions for genes not in training set
-   - Mechanistic conclusions without validation
-
----
 
 ## Biological Insights
 
@@ -448,7 +402,7 @@ Based on combined z-score ranking:
 
 ### 4. Ribosome as Drug Target
 - **11,358 compounds screened** → enrichment for translation modulators
-- **Known positives recovered:** Cycloheximide, emetine validate approach
+- **Known positives recovered:** Cycloheximide
 - **Novel candidates identified:** Several compounds with strong TE effects and known bioactivity
 
 ---
@@ -461,18 +415,12 @@ Based on combined z-score ranking:
    - Report out-of-sample performance
    - Estimate true generalization error
 
-2. **Feature engineering**
-   - Add 5' UTR features (length, GC content, structure)
-   - Include miRNA binding site predictions
-   - Integrate ribosome occupancy data (if available)
-   - Codon usage bias metrics
-
-3. **Model improvements**
+2. **Model improvements**
    - Test ElasticNet (L1+L2 penalty)
    - Explore non-linear models (Random Forest, XGBoost)
    - Neural network with attention mechanism
 
-4. **Cell type generalization**
+3. **Cell type generalization**
    - Train on multiple cell lines
    - Domain adaptation techniques
    - Transfer learning approaches
@@ -483,34 +431,10 @@ Based on combined z-score ranking:
    - Validate TE changes via ribosome profiling
    - Confirm dose-response relationships
 
-2. **Mechanism-of-action studies**
-   - Group compounds by predicted TE signatures
-   - Test hypothesized pathways (mTOR, HDAC, etc.)
-   - Identify common upstream regulators
-
-3. **Drug repurposing**
+2. **Drug repurposing**
    - Cross-reference predictions with approved drugs
    - Identify new indications for known compounds
    - Focus on translation-related diseases
-
-4. **Combination screening**
-   - Test synergies between translational modulators
-   - Optimize compound pairs for maximal effect
-   - Explore antagonistic relationships
-
-### Biological Questions
-1. **What features best predict hard-to-model genes?**
-   - Analyze RPS27, RPL36A specifically
-   - Test post-transcriptional regulatory features
-   - Consider protein stability, localization
-
-2. **Are there cell-type-specific regulators?**
-   - Compare HEK293T model to other cell lines
-   - Identify shared vs. unique regulatory logic
-
-3. **Can we predict disease-relevant TE changes?**
-   - Apply to cancer, neurodegeneration datasets
-   - Link dysregulated translation to pathology
 
 ---
 
@@ -529,11 +453,6 @@ Based on combined z-score ranking:
 - **XLSX Streaming Parser:** `zipfile` + `ElementTree.iterparse` for large files (529 MB). Can also be redone via simple pandas
 - **CLR Transformation:** Centered log-ratio for compositional data
 - **Metadata Alignment:** Plate:well coordinate matching for CIGS data
-
-### Development Environment
-- **Jupyter Notebook / VS Code** with Jupyter extension
-- **Git** for version control
-- **GitHub** for repository hosting
 
 ---
 
@@ -564,99 +483,6 @@ Based on combined z-score ranking:
 
 ---
 
-
-### Step 1 – Environment setup (Cells 1–2)
-* Imports NumPy/Pandas/Matplotlib + sklearn, fixes the random seed, and defines reproducibility knobs (`RANDOM_SEED`, `N_SPLITS`, `USE_PCA`).
-* Result: consistent logging/plotting behavior across reruns.
-
-### Step 2 – Resolve data paths (Cells 3–4)
-* Verifies the repository structure, locates the RNA/TE CSVs and CIGS workbooks under `data/`, and fails fast if anything is missing.
-* Result: console prints the resolved `data/` directory plus explicit filenames for RNA, TE, counts, and metadata inputs.
-
-### Step 3 – Reusable helpers (Cells 5–6)
-* Cleans up CSV indices, infers ID columns, computes Pearson safely, maps transcripts to symbols, and defines utility masks (e.g., `rps_rpl_mask`).
-* Result: helper functions (`drop_index_like`, `safe_pearsonr`, `clr`, etc.) that keep downstream cells concise.
-
-### Step 4 – Align RNA and TE matrices (Cells 7–8)
-* Reads `RNA_HEK293T.csv` and `TE_HEK293T.csv`, trims to shared samples/genes, renames ID columns, and logs resulting shapes.
-* Result: harmonized RNA/TE tables with identical sample axes so the TE modeling never hits alignment errors.
-
-### Step 5 – Build modeling matrices (Cells 9–10)
-* Converts the aligned DataFrames into NumPy matrices (`X` for RNA predictors, `Y` for TE targets) and stores ordered gene metadata.
-* Result: `X`, `Y`, `genes`, and `gene_symbols` ready for every model in later steps.
-
-### Step 6 – Cluster-level Lasso sanity checks (Cells 11–13)
-* Focuses on RPS/RPL clusters, runs cross-validated `LassoCV`, refits the best alpha on full data, and visualizes the highest-weight RNA regulators.
-* Result highlights:
-	* Printed metrics (`r`, MAE, RMSE) for RPS/RPL predictions.
-	* Median alpha + non-zero feature counts to gauge sparsity.
-	* Tables/plots of RNA drivers that most strongly shift each cluster.
-
-### Step 7 – MultiTask Lasso for ribosomal TE (Cells 14–18)
-* Separates non-ribosomal predictors from ribosomal targets, handles missing values via CLR-style filling, and trains a shared `MultiTaskLasso` (`mtl_model`).
-* Result highlights:
-	* Train RMSE + chosen alpha so you can confirm optimization and hyperparameters.
-	* Model summary with sparsity, per-target RMSE, and a ranked list of multi-target regulators (the earlier noisy coefficient heatmap remains retired).
-	* Mean/median RMSE across outputs for a quick model-health metric between retrains.
-
-### Step 8 – CIGS ingestion and prediction setup (Cells 19–21)
-* Rebuilds XLSX parsing with standard-library `zipfile` + streaming `ElementTree.iterparse`, strips note rows, and infers plate:well/sample IDs so metadata merges survive header drift.
-* Filters metadata to HEK293T / 24 h / valid doses, applies the same CLR transform used in training, aligns features to `feature_names`, and feeds compounds through `mtl_model` to obtain `pred_TE` (compounds × ribosomal genes).
-* Result highlights: console logs raw/filtered shapes, overlapping feature counts, predicted TE dimensions, and a top-10 compound table sorted by L2 magnitude alongside dataset counts (compounds, target genes, predictors).
-
-### Step 9 – Visualize top compound responses (Cell 22)
-* Confirms `pred_TE` and `ranked` exist, then renders a heatmap for the highest-ranking compounds.
-* Result: figure showing the top translational perturbations across ribosomal genes to quickly spot expected positives/negatives.
-
-### Step 10 – Rank compounds with combined scores (Cell 23)
-* Collapses each predicted TE vector into z-scored mean and magnitude components, then builds `drug_summary` with a combined score.
-* Result: sorted DataFrame that highlights the most extreme translational modulators whether directional or broad-spectrum.
-
-### Step 11 – Baseline per-gene regression (Cell 24)
-* Fits simple `LinearRegression` models (TE ~ RNA for the same gene) to provide a conservative baseline.
-* Result: median R²/RMSE printouts so you know the floor before multitask sharing.
-
-### Step 12 – Ridge baselines across ribosomal genes (Cells 25–26)
-* Uses `RidgeCV` per ribosomal gene plus aggregate summaries to benchmark against the multitask approach.
-* Result: counts of fitted ridge models and median/mean error metrics for apples-to-apples comparisons.
-
-### Step 13 – Compound score diagnostics (Cell 27)
-* Builds scatter + histogram views of the standardized mean-effect versus magnitude components to see which compounds are directional specialists versus broad-spectrum modulators.
-* Result: bivariate plot with combined-score color/size encoding, a distribution view for all compounds, and a printed top-10 list for downstream reporting.
-
-### Step 14 – Ribosomal difficulty profile (Cell 28)
-* Uses the per-target RMSE array directly instead of a coarse heatmap to flag ribosomal genes that remain challenging for the multitask model.
-* Result: paired bar charts for the hardest vs. easiest dozen targets plus summary tables that guide where to invest more features or experiments.
-
-## Result Snapshot
-* **Step 6 – Cluster Lasso** – Validates that ribosomal clusters carry interpretable RNA drivers (Cells 11–13).
-* **Step 7 – MultiTask Lasso** – Captures the joint translation landscape; pay special attention to the sparsity and per-target error readouts (Cells 14–18).
-* **Step 8 – CIGS projection** – Connects drug signatures to predicted translation shifts; the top-10 table matches what was shared during lab meetings (Cells 19–21).
-* **Steps 9–10 – Compound figures** – Heatmap + combined z-score ranking make it easy to pitch candidate compounds (Cells 22–23).
-* **Steps 11–12 – Baselines** – Linear + ridge models provide a sanity floor so we know the multitask model truly helps (Cells 24–26).
-* **Step 13 – Diagnostics** – Scatter + histogram views of the combined scores make it easy to discuss whether a compound is directionally biased or a broad-spectrum ribosome modulator (Cell 27).
-* **Step 14 – Difficulty readout** – Hard/easy ribosomal targets are summarized with bar charts instead of the earlier, inaccurate heatmap (Cell 28).
-
-### Current Highlights 
-These numbers come from the most recent end-to-end execution. Treat them as targets when you rerun or extend the notebook.
-* MultiTask Lasso train RMSE: ~0.19 log2 units with alpha 0.01 and ~83% sparsity.
-* Per-target RMSE median: ~0.17; mean: ~0.21 across 87 ribosomal outputs.
-* Top predicted translational amplifiers in latest CIGS pass: homoharringtonine, cycloheximide, and emetine (expected positive controls). Several HDAC inhibitors show strong negative mean effect, suggesting a translational repression axis that could use wet-lab validation.
-* Compound score diagnostics currently show ~30% of compounds dominated by directional shifts (|z_mean| > z_l2); the rest act as broad-spectrum ribosome modulators.
-* Ribosomal difficulty profiling shows a median RMSE gap of ~0.11 between the hardest and easiest dozen targets, which now serves as the progress-tracking metric instead of the coefficient heatmap.
-* Ridge baseline median R² ≈ 0.42 vs. the multitask sparsity/readouts, reinforcing why we invest in the multitask approach.
-
-
-## Future Research Directions (Drug-Focused)
-These examples emphasize translating model predictions into actionable drug insights—both computational follow-ups and suggested experiments.
-1. **Compound clustering by TE signature** – Use the predicted `pred_TE` matrix to cluster drugs by shared translational fingerprints, then relate each cluster to known mechanisms.
-2. **Repurposing exploration** – Cross-reference top translational modulators with FDA-approved indications; flag candidates whose predicted TE effects suggest new uses.
-
-## Technical Stack
-* Python + Jupyter/VS Code
-* pandas, numpy, matplotlib, seaborn
-* scikit-learn models: `LinearRegression`, `RidgeCV`, `LassoCV`, `MultiTaskLasso`, plus custom CLR + XLSX utilities
-
 ## Contact
 
 **Author:** Leena Joshi, leenajoshi@utexas.edu
@@ -667,6 +493,6 @@ These examples emphasize translating model predictions into actionable drug insi
 **Acknowledgments:**
 - Dr. Can Cenik for project supervision 
 - Cenik Lab for providing HEK293T RNA/TE datasets
-- CIGS consortium for compound perturbation data
+- CIGS for compound perturbation data
 
 ---
